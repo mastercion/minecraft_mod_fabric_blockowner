@@ -1,8 +1,9 @@
-# Fabric Example Mod
+# BlockOwner
 
-## Setup
+## About
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+This mod lets you view the Owner of each Player Placed block. Operator permission needed.
+You only need to save it server side.
 
 ## License
 
