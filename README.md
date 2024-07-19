@@ -12,6 +12,10 @@ BlockOwner is a simple Minecraft mod that allows you to view the owner of each p
 - **Operator Permissions**: Only players with operator permissions can use this feature, ensuring secure usage.
 - **Server-Side Only**: No need for any client-side installation, making it hassle-free to set up and use.
 
+**Feel free to sumbmit your ideas!**
+
+**ToDo list**: [Open issue Page](https://github.com/mastercion/minecraft_mod_fabric_blockowner/issues/1)
+
 ## Setup
 
 1. **Download the Mod**: [Download the latest version](https://github.com/mastercion/minecraft_mod_fabric_blockowner/releases)
