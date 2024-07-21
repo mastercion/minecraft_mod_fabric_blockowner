@@ -20,12 +20,15 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import net.minecraft.util.Identifier;
+import net.minecraft.registry.Registries;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,21 +48,26 @@ public class EventHandlers {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             System.out.println("DEBUG: UseBlockCallback.EVENT triggered.");
             if (!world.isClient) {
-                BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
-                ItemStack itemStack = player.getStackInHand(hand);
+                if (player.hasPermissionLevel(4)) { // Check if the player is an operator
+                    BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
+                    ItemStack itemStack = player.getStackInHand(hand);
 
-                // Check if the item in hand is a block item
-                if (itemStack.getItem() instanceof BlockItem) {
-                    Block block = ((BlockItem) itemStack.getItem()).getBlock();
-                    BlockPos immutablePos = pos.toImmutable();
-                    String playerName = player.getName().getString();
-                    userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
-                            .put(immutablePos, new BlockData(block, playerName));
-                    System.out.println("DEBUG: Adding block to blockOwners: " + immutablePos + " placed by " + playerName);
-                    saveBlockData(playerName);
-                    System.out.println("DEBUG: Block placed by: " + playerName + " at " + immutablePos);
+                    // Check if the item in hand is a block item
+                    if (itemStack.getItem() instanceof BlockItem) {
+                        Block block = ((BlockItem) itemStack.getItem()).getBlock();
+                        BlockPos immutablePos = pos.toImmutable();
+                        String playerName = player.getName().getString();
+                        LocalDateTime timestamp = LocalDateTime.now();
+                        userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
+                                .put(immutablePos, new BlockData(block, playerName, timestamp));
+                        System.out.println("DEBUG: Adding block to blockOwners: " + immutablePos + " placed by " + playerName);
+                        saveBlockData(playerName);
+                        System.out.println("DEBUG: Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp);
+                    } else {
+                        System.out.println("DEBUG: Item in hand is not a block item: " + itemStack.getItem().getTranslationKey());
+                    }
                 } else {
-                    System.out.println("DEBUG: Item in hand is not a block item: " + itemStack.getItem().getTranslationKey());
+                    System.out.println("DEBUG: Player " + player.getName().getString() + " is not an operator, ignoring event.");
                 }
             } else {
                 System.out.println("DEBUG: Event triggered on client side, ignoring.");
@@ -81,7 +89,7 @@ public class EventHandlers {
                         Map<BlockPos, BlockData> blockOwners = userBlockOwners.get(playerName);
                         if (blockOwners != null && blockOwners.containsKey(pos)) {
                             BlockData blockData = blockOwners.get(pos);
-                            player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ")"), true);
+                            player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
                             System.out.println("DEBUG: Block placed by: " + blockData.owner);
                         } else if (block != Blocks.AIR) {
                             player.sendMessage(Text.of("Block not tracked (Block: " + block.getTranslationKey() + ")"), true);
