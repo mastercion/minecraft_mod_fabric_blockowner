@@ -4,17 +4,24 @@
 
 ## About
 
-BlockOwner is a simple Minecraft mod that allows you to view the owner of each player-placed block. This mod requires operator permissions to function and works entirely server-side, so there's no need for any client-side installation or configuration.
+BlockOwner is a simple Minecraft mod that allows you to track and view the owner of each player-placed block. This mod requires operator permissions to function and works entirely server-side, so there's no need for any client-side installation or configuration.
+
+## FAQ
+### **How does it work?**
+It tracks each block placed by every player on the server and stores them on a per-player basis to be later viewed using the selection tool.
 
 ## Features
 
-- **View Block Owners**: Easily identify who placed a block by using a wooden hoe.
-- **Operator Permissions**: Only players with operator permissions can use this feature, ensuring secure usage.
+- **View Block Owners**: Easily track and identify who placed a block by using a wooden hoe or your customized tool.
+- **Permissions**: Only players with operator permissions can use this feature, ensuring secure usage.
 - **Server-Side Only**: No need for any client-side installation, making it hassle-free to set up and use.
+- **Commands**:
+  - **`/blockowner level [none|minimal|all]`**: Adjusts the log level for the mod, controlling the verbosity of logs.
+  - **`/blockowner tool minecraft:item_name`**: Sets the tool used for inspecting blocks. The selected tool is saved in the configuration file for persistent use.
 
-**Feel free to sumbmit your ideas!**
+**Feel free to submit your ideas!**
 
-**ToDo list**: [Open issue Page](https://github.com/mastercion/minecraft_mod_fabric_blockowner/issues/1)
+**To-Do list**: [Open issue Page](https://github.com/mastercion/minecraft_mod_fabric_blockowner/issues/1)
 
 ## Setup
 
@@ -26,8 +33,11 @@ BlockOwner is a simple Minecraft mod that allows you to view the owner of each p
 
 ## Usage
 
-1. **Become an Operator**: Ensure you have operator permissions on your server.
-2. **Use the Wooden Hoe**: Right-click with a wooden hoe to view the owner of the block you're looking at.
+1. **User with Operator**: Ensure you have operator permissions on your server.
+2. **Use the Selection Tool**: Right-click with a wooden hoe or your configured tool to view the owner of the block you're looking at.
+3. **Commands**:
+   - **/blockowner level [none|minimal|all]**: Adjust the log level.
+   - **/blockowner tool [ANYTOOL]**: Set the tool for inspecting blocks.
 
 ## License
 
