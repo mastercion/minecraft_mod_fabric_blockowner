@@ -2,16 +2,20 @@ package com.example;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -36,6 +40,7 @@ public class EventHandlers {
             .setPrettyPrinting()
             .create();
     private static final File CONFIG_DIR = new File("config/blockowner/player");
+    private static Config config = Config.getInstance(); // Use getInstance() to access the singleton
 
     static {
         if (!CONFIG_DIR.exists()) {
@@ -45,6 +50,7 @@ public class EventHandlers {
 
     public static void register() {
         LoggerUtil.log("Registering event handlers.", LoggerUtil.LogLevel.MINIMAL);
+        config.load(); // Ensure config is loaded properly
         loadAllUserBlockData();
 
         // Register block placement tracking
@@ -78,7 +84,7 @@ public class EventHandlers {
         // Register item usage callback for wooden hoe
         UseItemCallback.EVENT.register((player, world, hand) -> {
             LoggerUtil.log("UseItemCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
-            if (!world.isClient && player.getStackInHand(hand).getItem() == Items.WOODEN_HOE) {
+            if (!world.isClient && player.getStackInHand(hand).getItem().toString().equals(config.inspectTool)) {
                 if (player.hasPermissionLevel(4)) { // Check if the player is an operator
                     BlockHitResult hitResult = rayTrace(world, (ServerPlayerEntity) player, RaycastContext.FluidHandling.NONE);
                     if (hitResult.getType() == HitResult.Type.BLOCK) {

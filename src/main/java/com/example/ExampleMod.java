@@ -21,5 +21,6 @@ public class ExampleMod implements ModInitializer {
 		System.out.println("BlockTracker Mod initialized!");
 		EventHandlers.register();
 		LogLevelCommand.register();
+		ToolCommand.register();
 	}
 }

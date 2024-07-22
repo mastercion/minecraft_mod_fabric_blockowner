@@ -15,17 +15,18 @@ public class LogLevelCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(CommandManager.literal("blockowner")
-                    .then(CommandManager.argument("level", StringArgumentType.word())
-                            .suggests((context, builder) -> {
-                                return builder.suggest("none").suggest("minimal").suggest("all").buildFuture();
-                            })
-                            .executes(LogLevelCommand::setLogLevel))
+                    .then(CommandManager.literal("logLevel")
+                            .then(CommandManager.argument("logLevel", StringArgumentType.word())
+                                    .suggests((context, builder) -> {
+                                        return builder.suggest("none").suggest("minimal").suggest("all").buildFuture();
+                                    })
+                                    .executes(LogLevelCommand::setLogLevel)))
             );
         });
     }
 
     private static int setLogLevel(CommandContext<ServerCommandSource> context) {
-        String level = StringArgumentType.getString(context, "level").toLowerCase();
+        String level = StringArgumentType.getString(context, "logLevel").toLowerCase();
         switch (level) {
             case "none":
                 LoggerUtil.setLogLevel(LoggerUtil.LogLevel.NONE);
