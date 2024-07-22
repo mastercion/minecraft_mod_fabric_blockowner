@@ -29,7 +29,14 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
     @Override
     public BlockData deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject obj = json.getAsJsonObject();
-        Block block = Registries.BLOCK.get(new Identifier(obj.get("block").getAsString()));
+        String blockName = obj.get("block").getAsString();
+        Identifier blockId = Identifier.tryParse(blockName);
+        Block block = null;
+        if (blockId != null) {
+            block = Registries.BLOCK.get(blockId);
+        } else {
+            System.err.println("Invalid block identifier: " + blockName);
+        }
         String owner = obj.get("owner").getAsString();
         LocalDateTime timestamp = LocalDateTime.parse(obj.get("timestamp").getAsString(), formatter);
         return new BlockData(block, owner, timestamp);
