@@ -20,5 +20,6 @@ public class ExampleMod implements ModInitializer {
 		LOGGER.info("Hello Fabric world!");
 		System.out.println("BlockTracker Mod initialized!");
 		EventHandlers.register();
+		LogLevelCommand.register();
 	}
 }

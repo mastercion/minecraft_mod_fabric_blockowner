@@ -41,12 +41,12 @@ public class EventHandlers {
             .create();
 
     public static void register() {
-        System.out.println("DEBUG: Registering event handlers.");
+        LoggerUtil.log("Registering event handlers.", LoggerUtil.LogLevel.MINIMAL);
         loadAllUserBlockData();
 
         // Register block placement tracking
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            System.out.println("DEBUG: UseBlockCallback.EVENT triggered.");
+            LoggerUtil.log("UseBlockCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
             if (!world.isClient) {
                 if (player.hasPermissionLevel(4)) { // Check if the player is an operator
                     BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
@@ -60,50 +60,50 @@ public class EventHandlers {
                         LocalDateTime timestamp = LocalDateTime.now();
                         userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
                                 .put(immutablePos, new BlockData(block, playerName, timestamp));
-                        System.out.println("DEBUG: Adding block to blockOwners: " + immutablePos + " placed by " + playerName);
+                        LoggerUtil.log("Adding block to blockOwners: " + immutablePos + " placed by " + playerName, LoggerUtil.LogLevel.MINIMAL);
                         saveBlockData(playerName);
-                        System.out.println("DEBUG: Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp);
+                        LoggerUtil.log("Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp, LoggerUtil.LogLevel.MINIMAL);
                     } else {
-                        System.out.println("DEBUG: Item in hand is not a block item: " + itemStack.getItem().getTranslationKey());
+                        LoggerUtil.log("Item in hand is not a block item: " + itemStack.getItem().getTranslationKey(), LoggerUtil.LogLevel.ALL);
                     }
                 } else {
-                    System.out.println("DEBUG: Player " + player.getName().getString() + " is not an operator, ignoring event.");
+                    LoggerUtil.log("Player " + player.getName().getString() + " is not an operator, ignoring event.", LoggerUtil.LogLevel.MINIMAL);
                 }
             } else {
-                System.out.println("DEBUG: Event triggered on client side, ignoring.");
+                LoggerUtil.log("Event triggered on client side, ignoring.", LoggerUtil.LogLevel.ALL);
             }
             return ActionResult.PASS;
         });
 
         // Register item usage callback for wooden hoe
         UseItemCallback.EVENT.register((player, world, hand) -> {
-            System.out.println("DEBUG: UseItemCallback.EVENT triggered.");
+            LoggerUtil.log("UseItemCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
             if (!world.isClient && player.getStackInHand(hand).getItem() == Items.WOODEN_HOE) {
                 if (player.hasPermissionLevel(4)) { // Check if the player is an operator
                     BlockHitResult hitResult = rayTrace(world, (ServerPlayerEntity) player, RaycastContext.FluidHandling.NONE);
                     if (hitResult.getType() == HitResult.Type.BLOCK) {
                         BlockPos pos = hitResult.getBlockPos().toImmutable();
                         Block block = world.getBlockState(pos).getBlock();
-                        System.out.println("DEBUG: Ray traced block at: " + pos + " of type " + block.getTranslationKey());
+                        LoggerUtil.log("Ray traced block at: " + pos + " of type " + block.getTranslationKey(), LoggerUtil.LogLevel.ALL);
                         String playerName = player.getName().getString();
                         Map<BlockPos, BlockData> blockOwners = userBlockOwners.get(playerName);
                         if (blockOwners != null && blockOwners.containsKey(pos)) {
                             BlockData blockData = blockOwners.get(pos);
                             player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
-                            System.out.println("DEBUG: Block placed by: " + blockData.owner);
+                            LoggerUtil.log("Block placed by: " + blockData.owner, LoggerUtil.LogLevel.MINIMAL);
                         } else if (block != Blocks.AIR) {
                             player.sendMessage(Text.of("Block not tracked (Block: " + block.getTranslationKey() + ")"), true);
-                            System.out.println("DEBUG: Block not tracked at: " + pos);
+                            LoggerUtil.log("Block not tracked at: " + pos, LoggerUtil.LogLevel.ALL);
                         } else {
                             player.sendMessage(Text.of("Air block not tracked"), true);
-                            System.out.println("DEBUG: Air block not tracked at: " + pos);
+                            LoggerUtil.log("Air block not tracked at: " + pos, LoggerUtil.LogLevel.ALL);
                         }
                     } else {
-                        System.out.println("DEBUG: Ray tracing did not hit a block");
+                        LoggerUtil.log("Ray tracing did not hit a block", LoggerUtil.LogLevel.ALL);
                     }
                     return new TypedActionResult<>(ActionResult.SUCCESS, player.getStackInHand(hand));
                 } else {
-                    System.out.println("DEBUG: Player " + player.getName().getString() + " is not an operator, ignoring event.");
+                    LoggerUtil.log("Player " + player.getName().getString() + " is not an operator, ignoring event.", LoggerUtil.LogLevel.MINIMAL);
                 }
             }
             return new TypedActionResult<>(ActionResult.PASS, player.getStackInHand(hand));
@@ -119,7 +119,7 @@ public class EventHandlers {
                 fluidHandling,
                 player
         ));
-        System.out.println("DEBUG: Ray trace result: " + result);
+        LoggerUtil.log("Ray trace result: " + result, LoggerUtil.LogLevel.ALL);
         return result;
     }
 
@@ -129,12 +129,12 @@ public class EventHandlers {
             Map<BlockPos, BlockData> blockData = userBlockOwners.get(playerName);
             if (blockData != null) {
                 GSON.toJson(blockData, writer);
-                System.out.println("DEBUG: Block data saved to " + dataFile.getAbsolutePath());
+                LoggerUtil.log("Block data saved to " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
             } else {
-                System.out.println("DEBUG: No block data to save for player " + playerName);
+                LoggerUtil.log("No block data to save for player " + playerName, LoggerUtil.LogLevel.MINIMAL);
             }
         } catch (IOException e) {
-            System.err.println("DEBUG: Failed to save block data: " + e.getMessage());
+            LoggerUtil.log("Failed to save block data: " + e.getMessage(), LoggerUtil.LogLevel.MINIMAL);
             e.printStackTrace();
         }
     }
@@ -153,18 +153,18 @@ public class EventHandlers {
         File dataFile = new File(playerName + "BlockData.json");
         if (dataFile.exists() && dataFile.length() > 0) {
             try (FileReader reader = new FileReader(dataFile)) {
-                Type type = new TypeToken<Map<BlockPos, BlockData>>(){}.getType();
+                Type type = new TypeToken<Map<BlockPos, BlockData>>() {}.getType();
                 Map<BlockPos, BlockData> data = GSON.fromJson(reader, type);
                 if (data != null) {
                     userBlockOwners.put(playerName, data);
-                    System.out.println("DEBUG: Block data loaded from " + dataFile.getAbsolutePath());
+                    LoggerUtil.log("Block data loaded from " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
                 }
             } catch (IOException | JsonSyntaxException e) {
-                System.err.println("DEBUG: Failed to load block data: " + e.getMessage());
+                LoggerUtil.log("Failed to load block data: " + e.getMessage(), LoggerUtil.LogLevel.MINIMAL);
                 e.printStackTrace();
             }
         } else {
-            System.out.println("DEBUG: Data file is empty or does not exist, skipping loading for " + playerName);
+            LoggerUtil.log("Data file is empty or does not exist, skipping loading for " + playerName, LoggerUtil.LogLevel.MINIMAL);
         }
     }
 }
