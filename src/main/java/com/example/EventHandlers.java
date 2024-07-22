@@ -1,8 +1,6 @@
 package com.example;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -20,8 +18,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.Registries;
 
 import java.io.File;
 import java.io.FileReader;
@@ -39,6 +35,13 @@ public class EventHandlers {
             .registerTypeAdapter(BlockData.class, new BlockDataAdapter())
             .setPrettyPrinting()
             .create();
+    private static final File CONFIG_DIR = new File("config/blockowner/player");
+
+    static {
+        if (!CONFIG_DIR.exists()) {
+            CONFIG_DIR.mkdirs();
+        }
+    }
 
     public static void register() {
         LoggerUtil.log("Registering event handlers.", LoggerUtil.LogLevel.MINIMAL);
@@ -85,10 +88,16 @@ public class EventHandlers {
                         BlockPos pos = hitResult.getBlockPos().toImmutable();
                         Block block = world.getBlockState(pos).getBlock();
                         LoggerUtil.log("Ray traced block at: " + pos + " of type " + block.getTranslationKey(), LoggerUtil.LogLevel.ALL);
-                        String playerName = player.getName().getString();
-                        Map<BlockPos, BlockData> blockOwners = userBlockOwners.get(playerName);
-                        if (blockOwners != null && blockOwners.containsKey(pos)) {
-                            BlockData blockData = blockOwners.get(pos);
+
+                        BlockData blockData = null;
+                        for (Map<BlockPos, BlockData> blockDataMap : userBlockOwners.values()) {
+                            if (blockDataMap.containsKey(pos)) {
+                                blockData = blockDataMap.get(pos);
+                                break;
+                            }
+                        }
+
+                        if (blockData != null) {
                             player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
                             LoggerUtil.log("Block placed by: " + blockData.owner, LoggerUtil.LogLevel.MINIMAL);
                         } else if (block != Blocks.AIR) {
@@ -124,12 +133,23 @@ public class EventHandlers {
     }
 
     private static void saveBlockData(String playerName) {
-        File dataFile = new File(playerName + "BlockData.json");
+        File dataFile = new File(CONFIG_DIR, playerName + "BlockData.json");
         try (FileWriter writer = new FileWriter(dataFile)) {
             Map<BlockPos, BlockData> blockData = userBlockOwners.get(playerName);
             if (blockData != null) {
-                GSON.toJson(blockData, writer);
+                // Manually create JSON structure to ensure correct key format
+                JsonObject jsonObject = new JsonObject();
+                for (Map.Entry<BlockPos, BlockData> entry : blockData.entrySet()) {
+                    BlockPos pos = entry.getKey();
+                    BlockData data = entry.getValue();
+                    String key = pos.getX() + "," + pos.getY() + "," + pos.getZ();
+                    JsonElement value = GSON.toJsonTree(data);
+                    jsonObject.add(key, value);
+                }
+                String jsonData = GSON.toJson(jsonObject);
+                writer.write(jsonData);
                 LoggerUtil.log("Block data saved to " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
+                LoggerUtil.log("Block data content: " + jsonData, LoggerUtil.LogLevel.ALL);
             } else {
                 LoggerUtil.log("No block data to save for player " + playerName, LoggerUtil.LogLevel.MINIMAL);
             }
@@ -140,7 +160,7 @@ public class EventHandlers {
     }
 
     private static void loadAllUserBlockData() {
-        File[] files = new File(".").listFiles((dir, name) -> name.endsWith("BlockData.json"));
+        File[] files = CONFIG_DIR.listFiles((dir, name) -> name.endsWith("BlockData.json"));
         if (files != null) {
             for (File file : files) {
                 String playerName = file.getName().replace("BlockData.json", "");
@@ -150,13 +170,24 @@ public class EventHandlers {
     }
 
     private static void loadBlockData(String playerName) {
-        File dataFile = new File(playerName + "BlockData.json");
+        File dataFile = new File(CONFIG_DIR, playerName + "BlockData.json");
         if (dataFile.exists() && dataFile.length() > 0) {
             try (FileReader reader = new FileReader(dataFile)) {
-                Type type = new TypeToken<Map<BlockPos, BlockData>>() {}.getType();
-                Map<BlockPos, BlockData> data = GSON.fromJson(reader, type);
+                Type type = new TypeToken<Map<String, BlockData>>() {}.getType();
+                Map<String, BlockData> data = GSON.fromJson(reader, type);
                 if (data != null) {
-                    userBlockOwners.put(playerName, data);
+                    Map<BlockPos, BlockData> blockData = new HashMap<>();
+                    for (Map.Entry<String, BlockData> entry : data.entrySet()) {
+                        String[] parts = entry.getKey().split(",");
+                        if (parts.length == 3) {
+                            int x = Integer.parseInt(parts[0].trim());
+                            int y = Integer.parseInt(parts[1].trim());
+                            int z = Integer.parseInt(parts[2].trim());
+                            BlockPos pos = new BlockPos(x, y, z);
+                            blockData.put(pos, entry.getValue());
+                        }
+                    }
+                    userBlockOwners.put(playerName, blockData);
                     LoggerUtil.log("Block data loaded from " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
                 }
             } catch (IOException | JsonSyntaxException e) {
