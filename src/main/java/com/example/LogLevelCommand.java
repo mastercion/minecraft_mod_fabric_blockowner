@@ -14,7 +14,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 public class LogLevelCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            dispatcher.register(CommandManager.literal("blockownerlog")
+            dispatcher.register(CommandManager.literal("blockowner")
                     .then(CommandManager.argument("level", StringArgumentType.word())
                             .suggests((context, builder) -> {
                                 return builder.suggest("none").suggest("minimal").suggest("all").buildFuture();
