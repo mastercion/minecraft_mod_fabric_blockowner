@@ -51,27 +51,24 @@ public class EventHandlers {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             LoggerUtil.log("UseBlockCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
             if (!world.isClient) {
-                if (player.hasPermissionLevel(4)) { // Check if the player is an operator
-                    BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
-                    ItemStack itemStack = player.getStackInHand(hand);
 
-                    // Check if the item in hand is a block item
-                    if (itemStack.getItem() instanceof BlockItem) {
-                        Block block = ((BlockItem) itemStack.getItem()).getBlock();
-                        BlockPos immutablePos = pos.toImmutable();
-                        String playerName = player.getName().getString();
-                        LocalDateTime timestamp = LocalDateTime.now();
-                        userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
-                                .put(immutablePos, new BlockData(block, playerName, timestamp));
-                        LoggerUtil.log("Adding block to blockOwners: " + immutablePos + " placed by " + playerName, LoggerUtil.LogLevel.MINIMAL);
-                        saveBlockData(playerName);
-                        LoggerUtil.log("Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp, LoggerUtil.LogLevel.MINIMAL);
-                    } else {
-                        LoggerUtil.log("Item in hand is not a block item: " + itemStack.getItem().getTranslationKey(), LoggerUtil.LogLevel.ALL);
-                    }
+                BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
+                ItemStack itemStack = player.getStackInHand(hand);
+                // Check if the item in hand is a block item
+                if (itemStack.getItem() instanceof BlockItem) {
+                    Block block = ((BlockItem) itemStack.getItem()).getBlock();
+                    BlockPos immutablePos = pos.toImmutable();
+                    String playerName = player.getName().getString();
+                    LocalDateTime timestamp = LocalDateTime.now();
+                    userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
+                            .put(immutablePos, new BlockData(block, playerName, timestamp));
+                    LoggerUtil.log("Adding block to blockOwners: " + immutablePos + " placed by " + playerName, LoggerUtil.LogLevel.MINIMAL);
+                    saveBlockData(playerName);
+                    LoggerUtil.log("Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp, LoggerUtil.LogLevel.MINIMAL);
                 } else {
-                    LoggerUtil.log("Player " + player.getName().getString() + " is not an operator, ignoring event.", LoggerUtil.LogLevel.MINIMAL);
+                    LoggerUtil.log("Item in hand is not a block item: " + itemStack.getItem().getTranslationKey(), LoggerUtil.LogLevel.ALL);
                 }
+
             } else {
                 LoggerUtil.log("Event triggered on client side, ignoring.", LoggerUtil.LogLevel.ALL);
             }
