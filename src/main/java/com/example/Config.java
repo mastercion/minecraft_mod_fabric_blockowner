@@ -3,6 +3,7 @@ package com.example;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
@@ -73,6 +74,18 @@ public class Config {
     }
 
     public Item getInspectToolItem() {
-        return Registries.ITEM.get(new Identifier(inspectTool));
+        Identifier itemId = Identifier.tryParse(inspectTool);
+        if (itemId != null) {
+            Item item = Registries.ITEM.get(itemId);
+            if (item != null) {
+                return item;
+            } else {
+                System.err.println("Invalid item identifier: " + inspectTool);
+            }
+        } else {
+            System.err.println("Invalid item identifier format: " + inspectTool);
+        }
+        // Return a default item if the identifier is invalid or item does not exist
+        return Items.AIR;
     }
 }
