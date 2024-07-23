@@ -40,16 +40,20 @@ public class EventHandlers {
             .setPrettyPrinting()
             .create();
     private static final File CONFIG_DIR = new File("config/blockowner/player");
-    private static Config config = Config.getInstance(); // Use getInstance() to access the singleton
+    private static final File CONFIG_FILE = new File("config/blockowner/config/config.json");
 
     static {
         if (!CONFIG_DIR.exists()) {
             CONFIG_DIR.mkdirs();
         }
+        if (!CONFIG_FILE.getParentFile().exists()) {
+            CONFIG_FILE.getParentFile().mkdirs();
+        }
     }
 
     public static void register() {
         LoggerUtil.log("Registering event handlers.", LoggerUtil.LogLevel.MINIMAL);
+        Config config = Config.getInstance();
         config.load(); // Ensure config is loaded properly
         loadAllUserBlockData();
 
@@ -81,10 +85,10 @@ public class EventHandlers {
             return ActionResult.PASS;
         });
 
-        // Register item usage callback for wooden hoe
+        // Register item usage callback for inspect tool
         UseItemCallback.EVENT.register((player, world, hand) -> {
             LoggerUtil.log("UseItemCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
-            if (!world.isClient && player.getStackInHand(hand).getItem().toString().equals(config.inspectTool)) {
+            if (!world.isClient && player.getStackInHand(hand).getItem() == config.getInspectToolItem()) {
                 if (player.hasPermissionLevel(4)) { // Check if the player is an operator
                     BlockHitResult hitResult = rayTrace(world, (ServerPlayerEntity) player, RaycastContext.FluidHandling.NONE);
                     if (hitResult.getType() == HitResult.Type.BLOCK) {
@@ -101,7 +105,9 @@ public class EventHandlers {
                         }
 
                         if (blockData != null) {
-                            player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
+                            String message = MessageStyle.applyFormat(blockData);
+                            player.sendMessage(Text.literal(message), true);
+                            //player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
                             LoggerUtil.log("Block placed by: " + blockData.owner, LoggerUtil.LogLevel.MINIMAL);
                         } else if (block != Blocks.AIR) {
                             player.sendMessage(Text.of("Block not tracked (Block: " + block.getTranslationKey() + ")"), true);

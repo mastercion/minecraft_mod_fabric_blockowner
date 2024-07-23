@@ -29,19 +29,55 @@ public class LogLevelCommand {
         String level = StringArgumentType.getString(context, "logLevel").toLowerCase();
         switch (level) {
             case "none":
+                context.getSource().sendFeedback(() ->
+                                Text.literal("[BlockOwner] ")
+                                        .formatted(Formatting.GREEN)
+                                        .append(Text.literal("Log level set to:  ")
+                                                .formatted(Formatting.GRAY))
+                                        .append(Text.literal("NONE")
+                                                .formatted(Formatting.BLUE)),
+                        false
+                );
                 LoggerUtil.setLogLevel(LoggerUtil.LogLevel.NONE);
-                context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to NONE").formatted(Formatting.GREEN), false);
+                //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to NONE").formatted(Formatting.GREEN), false);
                 break;
             case "minimal":
                 LoggerUtil.setLogLevel(LoggerUtil.LogLevel.MINIMAL);
-                context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to MINIMAL").formatted(Formatting.GREEN), false);
+                context.getSource().sendFeedback(() ->
+                                Text.literal("[BlockOwner] ")
+                                        .formatted(Formatting.GREEN)
+                                        .append(Text.literal("Log level set to:  ")
+                                                .formatted(Formatting.GRAY))
+                                        .append(Text.literal("MINIMAL")
+                                                .formatted(Formatting.BLUE)),
+                        false
+                );
+                //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to MINIMAL").formatted(Formatting.GREEN), false);
                 break;
             case "all":
                 LoggerUtil.setLogLevel(LoggerUtil.LogLevel.ALL);
-                context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to ALL").formatted(Formatting.GREEN), false);
+                context.getSource().sendFeedback(() ->
+                                Text.literal("[BlockOwner] ")
+                                        .formatted(Formatting.GREEN)
+                                        .append(Text.literal("Log level set to:  ")
+                                                .formatted(Formatting.GRAY))
+                                        .append(Text.literal("ALL")
+                                                .formatted(Formatting.BLUE)),
+                        false
+                );
+                //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to ALL").formatted(Formatting.GREEN), false);
                 break;
             default:
-                context.getSource().sendFeedback(() -> Text.literal("Invalid log level: " + level).formatted(Formatting.RED), false);
+                context.getSource().sendFeedback(() ->
+                                Text.literal("[BlockOwner] ")
+                                        .formatted(Formatting.GREEN)
+                                        .append(Text.literal("Invalid log level: ")
+                                                .formatted(Formatting.GRAY))
+                                        .append(Text.literal(level)
+                                                .formatted(Formatting.BLUE)),
+                        false
+                );
+                //context.getSource().sendFeedback(() -> Text.literal("Invalid log level: " + level).formatted(Formatting.RED), false);
                 return 0;
         }
         return SINGLE_SUCCESS;
