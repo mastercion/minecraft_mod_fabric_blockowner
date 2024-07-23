@@ -27,9 +27,18 @@ public class ToolCommand {
 
     private static int setTool(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ItemStack itemStack = ItemStackArgumentType.getItemStackArgument(context, "tool").createStack(1, false);
-        config.inspectTool = itemStack.getItem().toString();
+        config.setInspectTool(itemStack.getItem().toString());
         config.save();
-        context.getSource().sendFeedback(() -> Text.literal("Inspect tool set to: " + config.inspectTool).formatted(Formatting.AQUA), true);
+        context.getSource().sendFeedback(() ->
+                        Text.literal("[BlockOwner] ")
+                                .formatted(Formatting.GREEN)
+                                .append(Text.literal("Inspect tool set to:  ")
+                                        .formatted(Formatting.GRAY))
+                                .append(Text.literal(config.getInspectTool())
+                                        .formatted(Formatting.AQUA)),
+                false
+        );
+        //context.getSource().sendFeedback(() -> Text.literal("Inspect tool set to: " + config.getInspectTool()).formatted(Formatting.AQUA), true);
         return SINGLE_SUCCESS;
     }
 }
