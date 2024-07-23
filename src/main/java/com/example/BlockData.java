@@ -1,6 +1,7 @@
 package com.example;
 
 import net.minecraft.block.Block;
+import net.minecraft.text.Text;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,5 +20,14 @@ public class BlockData {
     public String getFormattedTimestamp() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return this.timestamp.format(formatter);
+    }
+
+    public Text getFormattedDisplay() {
+        String format = Config.getInstance().getDisplayFormat();
+        String formattedText = format.replace("{Date}", getFormattedTimestamp())
+                .replace("{Player}", owner)
+                .replace("{Block}", block.getTranslationKey());
+
+        return Text.literal(formattedText);
     }
 }
