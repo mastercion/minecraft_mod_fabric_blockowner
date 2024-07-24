@@ -40,7 +40,7 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
         }
         String owner = obj.get("owner").getAsString();
         LocalDateTime timestamp = LocalDateTime.parse(obj.get("timestamp").getAsString(), formatter);
-        String dimension = obj.get("dimension").getAsString();  // Add this line
+        String dimension = obj.has("dimension") ? obj.get("dimension").getAsString() : "minecraft:overworld";
         return new BlockData(block, owner, timestamp, dimension);
     }
 }
