@@ -23,6 +23,7 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
         obj.addProperty("block", Registries.BLOCK.getId(src.block).toString());
         obj.addProperty("owner", src.owner);
         obj.addProperty("timestamp", src.timestamp.format(formatter));
+        obj.addProperty("dimension", src.dimension);  // Add this line
         return obj;
     }
 
@@ -32,6 +33,7 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
         Block block = Registries.BLOCK.get(new Identifier(obj.get("block").getAsString()));
         String owner = obj.get("owner").getAsString();
         LocalDateTime timestamp = LocalDateTime.parse(obj.get("timestamp").getAsString(), formatter);
-        return new BlockData(block, owner, timestamp);
+        String dimension = obj.get("dimension").getAsString();  // Add this line
+        return new BlockData(block, owner, timestamp, dimension);
     }
 }

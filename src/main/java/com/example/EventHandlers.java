@@ -2,16 +2,12 @@ package com.example;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -61,7 +57,6 @@ public class EventHandlers {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             LoggerUtil.log("UseBlockCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
             if (!world.isClient) {
-
                 BlockPos pos = hitResult.getBlockPos().offset(hitResult.getSide());
                 ItemStack itemStack = player.getStackInHand(hand);
                 // Check if the item in hand is a block item
@@ -70,8 +65,9 @@ public class EventHandlers {
                     BlockPos immutablePos = pos.toImmutable();
                     String playerName = player.getName().getString();
                     LocalDateTime timestamp = LocalDateTime.now();
+                    String dimension = world.getRegistryKey().getValue().toString();
                     userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
-                            .put(immutablePos, new BlockData(block, playerName, timestamp));
+                            .put(immutablePos, new BlockData(block, playerName, timestamp, dimension));
                     LoggerUtil.log("Adding block to blockOwners: " + immutablePos + " placed by " + playerName, LoggerUtil.LogLevel.MINIMAL);
                     saveBlockData(playerName);
                     LoggerUtil.log("Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp, LoggerUtil.LogLevel.MINIMAL);
@@ -96,10 +92,20 @@ public class EventHandlers {
                         Block block = world.getBlockState(pos).getBlock();
                         LoggerUtil.log("Ray traced block at: " + pos + " of type " + block.getTranslationKey(), LoggerUtil.LogLevel.ALL);
 
+                        String dimension = world.getRegistryKey().getValue().toString(); // Get the current dimension
                         BlockData blockData = null;
+
+                        // Iterate over userBlockOwners and check the dimension
                         for (Map<BlockPos, BlockData> blockDataMap : userBlockOwners.values()) {
-                            if (blockDataMap.containsKey(pos)) {
-                                blockData = blockDataMap.get(pos);
+                            for (Map.Entry<BlockPos, BlockData> entry : blockDataMap.entrySet()) {
+                                BlockPos storedPos = entry.getKey();
+                                BlockData data = entry.getValue();
+                                if (storedPos.equals(pos) && data.dimension.equals(dimension)) {
+                                    blockData = data;
+                                    break;
+                                }
+                            }
+                            if (blockData != null) {
                                 break;
                             }
                         }
@@ -107,7 +113,6 @@ public class EventHandlers {
                         if (blockData != null) {
                             String message = MessageStyle.applyFormat(blockData);
                             player.sendMessage(Text.literal(message), true);
-                            //player.sendMessage(Text.of("Block placed by: " + blockData.owner + " (Block: " + blockData.block.getTranslationKey() + ", Date: " + blockData.getFormattedTimestamp() + ")"), true);
                             LoggerUtil.log("Block placed by: " + blockData.owner, LoggerUtil.LogLevel.MINIMAL);
                         } else if (block != Blocks.AIR) {
                             player.sendMessage(Text.of("Block not tracked (Block: " + block.getTranslationKey() + ")"), true);
@@ -142,26 +147,27 @@ public class EventHandlers {
     }
 
     private static void saveBlockData(String playerName) {
+        Map<BlockPos, BlockData> blockData = userBlockOwners.get(playerName);
+        if (blockData == null) {
+            LoggerUtil.log("No block data to save for player " + playerName, LoggerUtil.LogLevel.MINIMAL);
+            return;
+        }
+
         File dataFile = new File(CONFIG_DIR, playerName + "BlockData.json");
         try (FileWriter writer = new FileWriter(dataFile)) {
-            Map<BlockPos, BlockData> blockData = userBlockOwners.get(playerName);
-            if (blockData != null) {
-                // Manually create JSON structure to ensure correct key format
-                JsonObject jsonObject = new JsonObject();
-                for (Map.Entry<BlockPos, BlockData> entry : blockData.entrySet()) {
-                    BlockPos pos = entry.getKey();
-                    BlockData data = entry.getValue();
-                    String key = pos.getX() + "," + pos.getY() + "," + pos.getZ();
-                    JsonElement value = GSON.toJsonTree(data);
-                    jsonObject.add(key, value);
-                }
-                String jsonData = GSON.toJson(jsonObject);
-                writer.write(jsonData);
-                LoggerUtil.log("Block data saved to " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
-                LoggerUtil.log("Block data content: " + jsonData, LoggerUtil.LogLevel.ALL);
-            } else {
-                LoggerUtil.log("No block data to save for player " + playerName, LoggerUtil.LogLevel.MINIMAL);
+            // Manually create JSON structure to ensure correct key format
+            JsonObject jsonObject = new JsonObject();
+            for (Map.Entry<BlockPos, BlockData> entry : blockData.entrySet()) {
+                BlockPos pos = entry.getKey();
+                BlockData data = entry.getValue();
+                String key = pos.getX() + "," + pos.getY() + "," + pos.getZ();
+                JsonElement value = GSON.toJsonTree(data);
+                jsonObject.add(key, value);
             }
+            String jsonData = GSON.toJson(jsonObject);
+            writer.write(jsonData);
+            LoggerUtil.log("Block data saved to " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
+            LoggerUtil.log("Block data content: " + jsonData, LoggerUtil.LogLevel.ALL);
         } catch (IOException e) {
             LoggerUtil.log("Failed to save block data: " + e.getMessage(), LoggerUtil.LogLevel.MINIMAL);
             e.printStackTrace();
