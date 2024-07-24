@@ -199,7 +199,11 @@ public class EventHandlers {
                             int y = Integer.parseInt(parts[1].trim());
                             int z = Integer.parseInt(parts[2].trim());
                             BlockPos pos = new BlockPos(x, y, z);
-                            blockData.put(pos, entry.getValue());
+                            BlockData blockDataEntry = entry.getValue();
+                            if (blockDataEntry.dimension == null) {
+                                blockDataEntry.dimension = "minecraft:overworld";
+                            }
+                            blockData.put(pos, blockDataEntry);
                         }
                     }
                     userBlockOwners.put(playerName, blockData);
