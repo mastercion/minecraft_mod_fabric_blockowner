@@ -10,11 +10,14 @@ public class BlockData {
     public final Block block;
     public final String owner;
     public final LocalDateTime timestamp;
+    public String dimension;  // Add this line
 
-    public BlockData(Block block, String owner, LocalDateTime timestamp) {
+    public BlockData(Block block, String owner, LocalDateTime timestamp, String dimension) {
         this.block = block;
         this.owner = owner;
         this.timestamp = timestamp;
+        this.dimension = dimension;  // Add this line
+
     }
 
     public String getFormattedTimestamp() {
