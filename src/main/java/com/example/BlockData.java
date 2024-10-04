@@ -2,6 +2,7 @@ package com.example;
 
 import net.minecraft.block.Block;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,7 +17,7 @@ public class BlockData {
         this.block = block;
         this.owner = owner;
         this.timestamp = timestamp;
-        this.dimension = dimension;  // Add this line
+        this.dimension = dimension;
 
     }
 

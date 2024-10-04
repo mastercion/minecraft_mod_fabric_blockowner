@@ -1,5 +1,6 @@
 package com.example;
 
+import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -25,5 +26,6 @@ public class ExampleMod implements ModInitializer {
 		LogLevelCommand.register();
 		ToolCommand.register();
 		MessageStyle.register();
+		PlayerBlockList.register();
 	}
 }
