@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventHandlers {
-    private static final Map<String, Map<BlockPos, BlockData>> userBlockOwners = new HashMap<>();
+    static final Map<String, Map<BlockPos, BlockData>> userBlockOwners = new HashMap<>();
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(BlockPos.class, new BlockPosAdapter())
             .registerTypeAdapter(BlockData.class, new BlockDataAdapter())
