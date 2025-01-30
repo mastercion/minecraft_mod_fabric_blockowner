@@ -23,7 +23,8 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
         obj.addProperty("block", Registries.BLOCK.getId(src.block).toString());
         obj.addProperty("owner", src.owner);
         obj.addProperty("timestamp", src.timestamp.format(formatter));
-        obj.addProperty("dimension", src.dimension);  // Add this line
+        obj.addProperty("dimension", src.dimension);
+        obj.addProperty("gamemode", src.gamemode);
         return obj;
     }
 
@@ -41,6 +42,7 @@ public class BlockDataAdapter implements JsonSerializer<BlockData>, JsonDeserial
         String owner = obj.get("owner").getAsString();
         LocalDateTime timestamp = LocalDateTime.parse(obj.get("timestamp").getAsString(), formatter);
         String dimension = obj.has("dimension") ? obj.get("dimension").getAsString() : "minecraft:overworld";
-        return new BlockData(block, owner, timestamp, dimension);
+        String gamemode = obj.has("gamemode") ? obj.get("gamemode").getAsString() : "survival";
+        return new BlockData(block, owner, timestamp, dimension, gamemode);
     }
 }

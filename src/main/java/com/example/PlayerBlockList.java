@@ -19,9 +19,31 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+
 public class PlayerBlockList {
     private static final int BLOCKS_PER_PAGE = 6;
     private static final int CHAT_CLEAR_LINES = 100;
+
+    private static Formatting getGamemodeColor(String gamemode) {
+        switch (gamemode) {
+            case "survival" -> {
+                return Formatting.GREEN;
+            }
+            case "creative" -> {
+                return Formatting.AQUA;
+            }
+            case "adventure" -> {
+                return Formatting.RED;
+            }
+            case "spectator" -> {
+                return Formatting.WHITE;
+            }
+            default -> {
+                return Formatting.GRAY;
+            }
+        }
+    }
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             dispatcher.register(CommandManager.literal("blockowner")
@@ -84,20 +106,34 @@ public class PlayerBlockList {
                 .append(Text.literal(dimension)
                         .formatted(Formatting.GREEN));
         source.sendFeedback(() -> header, false);
+
+        // Sort the blocks by their names
+        userBlocks.sort((bd1, bd2) -> {
+            String name1 = bd1.block.getTranslationKey().replace("block.minecraft.", "");
+            String name2 = bd2.block.getTranslationKey().replace("block.minecraft.", "");
+            return name1.compareTo(name2);
+        });
+
+        // List the blocks
         int startIndex = (page - 1) * BLOCKS_PER_PAGE;
         int endIndex = Math.min(startIndex + BLOCKS_PER_PAGE, userBlocks.size());
         for (int i = startIndex; i < endIndex; i++) {
             BlockData bd = userBlocks.get(i);
             BlockPos pos = getBlockPosForBlockData(playerName, bd);
             String blockName = bd.block.getTranslationKey().replace("block.minecraft.", "");
-            MutableText blockInfo = Text.literal(String.format("%s (%d, %d, %d)", blockName, pos.getX(), pos.getY(), pos.getZ()))
-                    .formatted(Formatting.GRAY);
+            MutableText blockInfo = Text.literal(String.format("%s (%d, %d, %d) - ", blockName, pos.getX(), pos.getY(), pos.getZ()))
+                    .formatted(Formatting.GRAY)
+                    .append(Text.literal(bd.gamemode).formatted(getGamemodeColor(bd.gamemode)));
             source.sendFeedback(() -> blockInfo, false);
         }
+
+        // Create the footer with pagination
         MutableText footer = createPageNavigation(page, totalPages, playerName, dimension);
         source.sendFeedback(() -> footer, false);
+
         return userBlocks.size();
     }
+
     private static void clearChat(ServerCommandSource source) {
         for (int i = 0; i < CHAT_CLEAR_LINES; i++) {
             source.sendFeedback(() -> Text.literal(""), false);

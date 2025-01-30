@@ -12,12 +12,14 @@ public class BlockData {
     public final String owner;
     public final LocalDateTime timestamp;
     public String dimension;
+    public final String gamemode;
 
-    public BlockData(Block block, String owner, LocalDateTime timestamp, String dimension) {
+    public BlockData(Block block, String owner, LocalDateTime timestamp, String dimension, String gamemode) {
         this.block = block;
         this.owner = owner;
         this.timestamp = timestamp;
-        this.dimension = dimension;  // Add this line
+        this.dimension = dimension;
+        this.gamemode = gamemode; // Test feature for 1.0.7
 
     }
 

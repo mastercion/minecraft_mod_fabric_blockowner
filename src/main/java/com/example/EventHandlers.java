@@ -16,6 +16,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
@@ -66,8 +67,10 @@ public class EventHandlers {
                     String playerName = player.getName().getString();
                     LocalDateTime timestamp = LocalDateTime.now();
                     String dimension = world.getRegistryKey().getValue().toString();
+                    GameMode gameMode = ((ServerPlayerEntity) player).interactionManager.getGameMode(); // Cast player to ServerPlayerEntity
+                    String gameModeName = gameMode.name().toLowerCase(); // Get the game mode name as a string
                     userBlockOwners.computeIfAbsent(playerName, k -> new HashMap<>())
-                            .put(immutablePos, new BlockData(block, playerName, timestamp, dimension));
+                            .put(immutablePos, new BlockData(block, playerName, timestamp, dimension, gameModeName));
                     LoggerUtil.log("Adding block to blockOwners: " + immutablePos + " placed by " + playerName, LoggerUtil.LogLevel.MINIMAL);
                     saveBlockData(playerName);
                     LoggerUtil.log("Block placed by: " + playerName + " at " + immutablePos + " on " + timestamp, LoggerUtil.LogLevel.MINIMAL);
