@@ -27,5 +27,6 @@ public class ExampleMod implements ModInitializer {
 		ToolCommand.register();
 		MessageStyle.register();
 		PlayerBlockList.register();
+		BlockDisplayVisualizer.register();
 	}
 }
