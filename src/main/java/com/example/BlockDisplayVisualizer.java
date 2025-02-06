@@ -87,7 +87,7 @@ public class BlockDisplayVisualizer {
                                 .formatted(Formatting.AQUA)),
                 false
         );
-        int radiusWave = 20; // or any desired value
+        int radiusWave = 20;  // will be configurable in later versions
         BlockPos playerPos = executor.getBlockPos();
         ServerWorld world = (ServerWorld) executor.getWorld();
         spawnSwirlingEffect(world, playerPos, radiusWave);
@@ -165,7 +165,7 @@ public class BlockDisplayVisualizer {
         playerRadii.remove(executorId);
         targetPlayers.remove(executorId);
 
-        int radiusWave = 20; // or any desired value
+        int radiusWave = 20; // will be configurable in later versions
         BlockPos playerPos = executor.getBlockPos();
         ServerWorld world = (ServerWorld) executor.getWorld();
         spawnEffectClear(world, playerPos, radiusWave);
@@ -183,7 +183,9 @@ public class BlockDisplayVisualizer {
         ArmorStandEntity armorStandName = new ArmorStandEntity(EntityType.ARMOR_STAND, world);
 
         // Set the armor stand's position
-        armorStandName.setPosition(Vec3d.ofCenter(blockPos.up(0)));
+        Vec3d basePos = Vec3d.ofCenter(blockPos);
+        armorStandName.setPosition(basePos.add(0, -0.75, 0));
+
         armorStandName.setInvisible(true);
         armorStandName.setNoGravity(true);
         armorStandName.setInvulnerable(true);
