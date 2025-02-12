@@ -2,15 +2,12 @@
 
 BlockOwner is a simple Minecraft mod that allows you to track and view the owner of each player-placed block. This mod requires operator permissions to function and works entirely server-side, so there's no need for any client-side installation or configuration.
 
+# Preview
+![Preview](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/a52745b22d01ccf70d060d7c13c87ea1cbb6bcc9/media/gif/preview.gif) ![Command](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/refs/heads/media/media/gif/list_command.gif)
+
 ## FAQ
 ### **How does it work?**
 It tracks each block placed by every player on the server and stores them on a per-player basis to be later viewed using the selection tool.
-
-## Using the tool
-![Preview](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/a52745b22d01ccf70d060d7c13c87ea1cbb6bcc9/media/gif/preview.gif)
-
-## Using the command
-![Command](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/refs/heads/media/media/gif/list_command.gif)
 
 ## Features
 
@@ -18,8 +15,18 @@ It tracks each block placed by every player on the server and stores them on a p
 - **Permissions**: Only players with operator permissions can use this feature, ensuring secure usage.
 - **Server-Side Only**: No need for any client-side installation, making it hassle-free to set up and use.
 - **Commands**:
-  - **`/blockowner level [none|minimal|all]`**: Adjusts the log level for the mod, controlling the verbosity of logs.
-  - **`/blockowner tool minecraft:item_name`**: Sets the tool used for inspecting blocks. The selected tool is saved in the configuration file for persistent use.
+  - **`/blockowner level [none|minimal|all]`**
+  
+  Adjusts the log level for the mod, controlling the verbosity of logs.
+  - **`/blockowner tool minecraft:item_name`**
+  
+  Sets the tool used for inspecting blocks. The selected tool is saved in the configuration file for persistent use.
+  - **`/blockowner style &1-9{Date} &1-9{Player} &1-9{Block}`**
+  
+  Allows you to customize the Message of the inspect tool in the way you want it. You can change the order of {Date} {Player} {Block} any way you want and assign minecraft color codes to them.
+  - **`/blockowner visualize [playername|clear] range(min10)`**
+  
+  Allows you to visualize the Blocks placed by the Person with extra info. (currenty only in TEST builds)
 
 **Feel free to submit your ideas!**
 
