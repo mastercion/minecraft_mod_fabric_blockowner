@@ -1,14 +1,16 @@
 # BlockOwner
 
-![Preview](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/master/media/gif/preview.gif)
-
-## About
-
 BlockOwner is a simple Minecraft mod that allows you to track and view the owner of each player-placed block. This mod requires operator permissions to function and works entirely server-side, so there's no need for any client-side installation or configuration.
 
 ## FAQ
 ### **How does it work?**
 It tracks each block placed by every player on the server and stores them on a per-player basis to be later viewed using the selection tool.
+
+## Using the tool
+![Preview](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/a52745b22d01ccf70d060d7c13c87ea1cbb6bcc9/media/gif/preview.gif)
+
+## Using the command
+![Command](https://raw.githubusercontent.com/mastercion/minecraft_mod_fabric_blockowner/refs/heads/media/media/gif/list_command.gif)
 
 ## Features
 
