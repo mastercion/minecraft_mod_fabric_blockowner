@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-Operating system: Windows 11 (Optional) Build 23H2
-Java version: 21.0.3
-Minecraft version: 1.20.5
-BlockOwner version: 1.0.6
-Other mods (if used): None
+Operating system: ???
+Java version: ???
+Minecraft version: ???
+BlockOwner version: ???
+Other mods (if used): ???
 
 ## Exception, error or logs
 Please find your `latest.log` and `config.json` in this folder and attach it to the issue
