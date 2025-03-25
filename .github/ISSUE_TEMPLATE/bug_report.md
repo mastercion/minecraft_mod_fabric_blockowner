@@ -7,25 +7,22 @@ assignees: ''
 
 ---
 
-Operating system:
-Java version:
-Minecraft version:
-BlockOwner version:
-Other mods (if used):
+Operating system: Windows 11 (Optional) Build 23H2
+Java version: 21.0.3
+Minecraft version: 1.20.5
+BlockOwner version: 1.0.6
+Other mods (if used): None
 
 ## Exception, error or logs
-Please find your `latest.log` or `debug.log` in this folder and attach it to the issue
+Please find your `latest.log` and `config.json` in this folder and attach it to the issue
 
-Linux: `~/.minecraft/logs/`
-
-Windows: `%appdata%/.minecraft/logs/`
-
-Mac: `/Library/Application\ Support/minecraft/logs/`
+Latest Log: `server/logs/latest.log`
+Config: `server/config/blockowner/config/config.json`
 
 ## How to reproduce
 Add your steps to reproduce the issue/bug experienced here.
 
 ## Final checklist
-- [ ] I know how to properly use check boxes
-- [ ] I have included the version of Minecraft I'm running, BlockOwner's version and fabric mods (if used).
-- [ ] I have included logs, exceptions and / or steps to reproduce the issue.
+- [x] I know how to properly use check boxes
+- [x] I have included the version of Minecraft I'm running, BlockOwner's version and fabric mods (if used).
+- [x] I have included logs, exceptions and / or steps to reproduce the issue.
