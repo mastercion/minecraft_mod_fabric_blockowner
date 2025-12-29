@@ -14,10 +14,12 @@ public class MessageStyle {
 
     // This will be initially loaded from the config
     static String displayFormat = Config.getInstance().getDisplayFormat();
+    private static final Config config = Config.getInstance();
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, dedicated) -> {
             dispatcher.register(CommandManager.literal("blockowner")
+                    .requires(source -> hasPermission(source))
                     .then(CommandManager.literal("style")
                             .then(CommandManager.argument("format", StringArgumentType.greedyString())
                                     .executes(context -> {
@@ -35,6 +37,16 @@ public class MessageStyle {
                                         return 1;
                                     }))));
         });
+    }
+
+    private static boolean hasPermission(ServerCommandSource source) {
+        // Check if player is OP with enough level
+        if (source.hasPermissionLevel(config.getPermission().getCommands())) {
+            return true;
+        }
+        // Or check if username is in allowedPlayers list
+        String username = source.getName();
+        return config.getPermission().getAllowedPlayers().contains(username);
     }
 
     private static void setDisplayFormat(ServerCommandSource source, String format) {

@@ -11,10 +11,15 @@ import net.minecraft.util.Formatting;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
+
+
+
 public class LogLevelCommand {
+    private static final Config config = Config.getInstance();
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(CommandManager.literal("blockowner")
+                    .requires(source -> hasPermission(source)) // <-- NEW
                     .then(CommandManager.literal("logLevel")
                             .then(CommandManager.argument("logLevel", StringArgumentType.word())
                                     .suggests((context, builder) -> {
@@ -23,6 +28,16 @@ public class LogLevelCommand {
                                     .executes(LogLevelCommand::setLogLevel)))
             );
         });
+    }
+
+    private static boolean hasPermission(ServerCommandSource source) {
+        // Check if player is OP with enough level
+        if (source.hasPermissionLevel(config.getPermission().getCommands())) {
+            return true;
+        }
+        // Or check if username is in allowedPlayers list
+        String username = source.getName();
+        return config.getPermission().getAllowedPlayers().contains(username);
     }
 
     private static int setLogLevel(CommandContext<ServerCommandSource> context) {
@@ -39,6 +54,7 @@ public class LogLevelCommand {
                         false
                 );
                 LoggerUtil.setLogLevel(LoggerUtil.LogLevel.NONE);
+                config.setLogLevel("none"); // <-- Set to config
                 //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to NONE").formatted(Formatting.GREEN), false);
                 break;
             case "minimal":
@@ -52,6 +68,7 @@ public class LogLevelCommand {
                                                 .formatted(Formatting.BLUE)),
                         false
                 );
+                config.setLogLevel("minimal"); // <-- Set to config
                 //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to MINIMAL").formatted(Formatting.GREEN), false);
                 break;
             case "all":
@@ -65,6 +82,7 @@ public class LogLevelCommand {
                                                 .formatted(Formatting.BLUE)),
                         false
                 );
+                config.setLogLevel("all"); // <-- Set to config
                 //context.getSource().sendFeedback(() -> Text.literal("BlockOwner log level set to ALL").formatted(Formatting.GREEN), false);
                 break;
             default:
@@ -80,6 +98,7 @@ public class LogLevelCommand {
                 //context.getSource().sendFeedback(() -> Text.literal("Invalid log level: " + level).formatted(Formatting.RED), false);
                 return 0;
         }
+        config.save();
         return SINGLE_SUCCESS;
     }
 }

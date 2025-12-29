@@ -18,11 +18,22 @@ public class ToolCommand {
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, dedicated) -> {
             dispatcher.register(CommandManager.literal("blockowner")
+                    .requires(source -> hasPermission(source)) // <-- NEW
                     .then(CommandManager.literal("tool")
                             .then(CommandManager.argument("tool", ItemStackArgumentType.itemStack(registryAccess))
                                     .executes(ToolCommand::setTool)))
             );
         });
+    }
+
+    private static boolean hasPermission(ServerCommandSource source) {
+        // Check if player is OP with enough level
+        if (source.hasPermissionLevel(config.getPermission().getCommands())) {
+            return true;
+        }
+        // Or check if username is in allowedPlayers list
+        String username = source.getName();
+        return config.getPermission().getAllowedPlayers().contains(username);
     }
 
     private static int setTool(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

@@ -12,6 +12,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -51,7 +52,7 @@ public class EventHandlers {
     public static void register() {
         LoggerUtil.log("Registering event handlers.", LoggerUtil.LogLevel.MINIMAL);
         Config config = Config.getInstance();
-        config.load(); // Ensure config is loaded properly
+        config.load();
         loadAllUserBlockData();
 
         // Register block placement tracking
@@ -88,7 +89,22 @@ public class EventHandlers {
         UseItemCallback.EVENT.register((player, world, hand) -> {
             LoggerUtil.log("UseItemCallback.EVENT triggered.", LoggerUtil.LogLevel.ALL);
             if (!world.isClient && player.getStackInHand(hand).getItem() == config.getInspectToolItem()) {
-                if (player.hasPermissionLevel(4)) { // Check if the player is an operator
+                String playerName = player.getName().getString();
+                Config.getInstance().load();
+        
+                LoggerUtil.log("Checking permissions for player: '" + playerName + "'", LoggerUtil.LogLevel.ALL);
+                LoggerUtil.log("Allowed players list: " + config.getPermission().getAllowedPlayers(), LoggerUtil.LogLevel.ALL);
+
+                boolean isOp = player.hasPermissionLevel(config.getPermission().getCommands());
+                boolean isInAllowedList = config.getPermission().getAllowedPlayers().contains(playerName);
+
+                LoggerUtil.log("Is operator: " + isOp, LoggerUtil.LogLevel.ALL);
+                LoggerUtil.log("Is in allowed list: " + isInAllowedList, LoggerUtil.LogLevel.ALL);
+
+                boolean isAllowed = isOp || isInAllowedList;
+
+
+                if (isAllowed) { // Check if the player is an operator
                     BlockHitResult hitResult = rayTrace(world, (ServerPlayerEntity) player, RaycastContext.FluidHandling.NONE);
                     if (hitResult.getType() == HitResult.Type.BLOCK) {
                         BlockPos pos = hitResult.getBlockPos().toImmutable();
@@ -136,7 +152,7 @@ public class EventHandlers {
         });
     }
 
-    private static BlockHitResult rayTrace(World world, ServerPlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
+        private static BlockHitResult rayTrace(World world, ServerPlayerEntity player, RaycastContext.FluidHandling fluidHandling) {
         float tickDelta = 1.0F;
         BlockHitResult result = world.raycast(new RaycastContext(
                 player.getCameraPosVec(tickDelta),
@@ -170,7 +186,7 @@ public class EventHandlers {
             String jsonData = GSON.toJson(jsonObject);
             writer.write(jsonData);
             LoggerUtil.log("Block data saved to " + dataFile.getAbsolutePath(), LoggerUtil.LogLevel.MINIMAL);
-            LoggerUtil.log("Block data content: " + jsonData, LoggerUtil.LogLevel.ALL);
+            LoggerUtil.log("Block data saved for " + playerName, LoggerUtil.LogLevel.ALL);
         } catch (IOException e) {
             LoggerUtil.log("Failed to save block data: " + e.getMessage(), LoggerUtil.LogLevel.MINIMAL);
             e.printStackTrace();

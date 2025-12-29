@@ -11,6 +11,8 @@ public class ConfigSerializer implements JsonSerializer<Config>, JsonDeserialize
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("inspectTool", src.getInspectTool());
         jsonObject.addProperty("displayFormat", src.getDisplayFormat());
+        jsonObject.add("permission", context.serialize(src.getPermission()));
+        jsonObject.addProperty("logLevel", src.getLogLevel());
         return jsonObject;
     }
 
@@ -23,6 +25,15 @@ public class ConfigSerializer implements JsonSerializer<Config>, JsonDeserialize
         }
         if (jsonObject.has("displayFormat")) {
             config.setDisplayFormat(jsonObject.get("displayFormat").getAsString());
+        }
+
+        if (jsonObject.has("permission")) {
+            Config.Permission permission = context.deserialize(jsonObject.get("permission"), Config.Permission.class);
+            config.setPermission(permission);
+        }
+
+        if (jsonObject.has("logLevel")) {
+            config.setLogLevel(jsonObject.get("logLevel").getAsString());
         }
         return config;
     }

@@ -66,7 +66,21 @@ public class PlayerBlockList {
                             .executes(context -> executeList(context.getSource(),
                                     getDimensionName(context.getSource().getWorld()),
                                     context.getSource().getPlayer(),
-                                    1))));
+                                    1)))
+                    // NEW: Gui Command
+                    .then(CommandManager.literal("gui")
+                            .executes(context -> {
+                                ServerPlayerEntity player = context.getSource().getPlayer();
+                                if (player != null) {
+                                    BlockTrackerGui.openPlayerList(player);
+                                    return 1;
+                                } else {
+                                    context.getSource().sendFeedback(() -> Text.literal("Command must be run by a player!"), false);
+                                    return 0;
+                                }
+                            })
+                    ));
+
         });
     }
     private static String getDimensionName(ServerWorld world) {

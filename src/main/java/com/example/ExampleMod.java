@@ -2,6 +2,8 @@ package com.example;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.mojang.brigadier.CommandDispatcher;
@@ -13,6 +15,8 @@ public class ExampleMod implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("BlockOwner");
+	private static final Config config = Config.getInstance();
+	public static final String VERSION;
 
 	@Override
 	public void onInitialize() {
@@ -20,13 +24,29 @@ public class ExampleMod implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-		LOGGER.info("Hello Fabric world!");
-		System.out.println("BlockTracker Mod initialized!");
+
+
+		ExampleMod.logInfo("-----------------------------");
+		ExampleMod.logInfo("BlockTracker " + VERSION + " started.");
+		ExampleMod.logInfo("Log Level: "+ config.getLogLevel());
+		ExampleMod.logInfo("-----------------------------");
+
 		EventHandlers.register();
 		LogLevelCommand.register();
 		ToolCommand.register();
 		MessageStyle.register();
 		PlayerBlockList.register();
 		BlockDisplayVisualizer.register();
+		PermissionCommand.register();
+		HighlightManager.register();
+	}
+
+	public static void logInfo(String message) {
+		LOGGER.info("[BlockOwner] " + message);
+	}
+
+	static {
+		ModMetadata metadata = FabricLoader.getInstance().getModContainer("modid").get().getMetadata();
+		VERSION = metadata.getVersion().getFriendlyString();
 	}
 }
