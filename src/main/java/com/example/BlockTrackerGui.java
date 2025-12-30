@@ -3,6 +3,8 @@ package com.example;
 import com.mojang.authlib.properties.PropertyMap;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
@@ -19,11 +21,13 @@ import java.util.*;
 
 public class BlockTrackerGui {
 
+    public static final String VERSION;
+
     // --- Main Menu: Player List ---
     public static void openPlayerList(ServerPlayerEntity player) {
         // Create a generic 9x6 chest GUI
         SimpleGui gui = new SimpleGui(ScreenHandlerType.GENERIC_9X6, player, false);
-        gui.setTitle(Text.literal("BlockOwner v1.0.8 - Players").formatted(Formatting.DARK_BLUE));
+        gui.setTitle(Text.literal("BlockOwner v" + VERSION + " - Players").formatted(Formatting.DARK_BLUE));
 
         // Get all players from your EventHandlers
         Set<String> playerNames = EventHandlers.userBlockOwners.keySet();
@@ -55,6 +59,17 @@ public class BlockTrackerGui {
         }
 
         gui.open();
+    }
+
+    static {
+        ModMetadata metadata = FabricLoader.getInstance().getModContainer("modid").get().getMetadata();
+        String rawVersion = metadata.getVersion().getFriendlyString();
+
+        if (rawVersion != null && rawVersion.length() > 6) {
+            VERSION = rawVersion.substring(0, rawVersion.length() - 7);
+        } else {
+            VERSION = rawVersion;
+        }
     }
 
     // --- Sub Menu: Block Log ---
